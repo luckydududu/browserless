@@ -1,4 +1,5 @@
 import * as http from 'http';
+import * as net from 'net';
 import * as stream from 'stream';
 import {
   BadRequest,
@@ -60,25 +61,27 @@ export class HTTPServer extends EventEmitter {
     );
   }
 
-  protected handleErrorRequest(e: Error, res: Response | stream.Duplex) {
+  protected handleErrorRequest(e: Error, res: Response | stream.Duplex, req?: Request) {
+    const contentType = req?.headers['content-type'] as contentTypes;
+
     if (e instanceof BadRequest) {
-      return writeResponse(res, 400, e.message);
+      return writeResponse(res, 400, e.message, contentType);
     }
 
     if (e instanceof NotFound) {
-      return writeResponse(res, 404, e.message);
+      return writeResponse(res, 404, e.message, contentType);
     }
 
     if (e instanceof Unauthorized) {
-      return writeResponse(res, 401, e.message);
+      return writeResponse(res, 401, e.message, contentType);
     }
 
     if (e instanceof TooManyRequests) {
-      return writeResponse(res, 429, e.message);
+      return writeResponse(res, 429, e.message, contentType);
     }
 
     if (e instanceof Timeout) {
-      return writeResponse(res, 408, e.message);
+      return writeResponse(res, 408, e.message, contentType);
     }
 
     this.logger.error(`Error handling request: ${e}\n${e.stack}`);
@@ -106,7 +109,7 @@ export class HTTPServer extends EventEmitter {
     this.logger.info(`HTTP Server is starting`);
 
     this.server.on('request', this.handleRequest.bind(this));
-    this.server.on('upgrade', this.handleWebSocket.bind(this));
+    this.server.on('upgrade', this.handleUpgrade.bind(this));
 
     const listenMessage = [
       `HTTP Server is listening on ${this.config.getServerAddress()}`,
@@ -126,6 +129,38 @@ export class HTTPServer extends EventEmitter {
         },
       );
     });
+  }
+
+  protected handleUpgrade(
+    request: http.IncomingMessage,
+    socket: stream.Duplex,
+    head: Buffer,
+  ) {
+    if (request.headers.upgrade?.toLowerCase() === 'websocket') {
+      return this.handleWebSocket(request, socket, head);
+    }
+
+    // Non-WebSocket upgrade (h2c, etc.) — process as normal HTTP
+    // per RFC 7230 Section 6.7.
+    this.logger.trace(
+      `Non-WebSocket upgrade request (Upgrade: ${request.headers.upgrade}), handling as HTTP`,
+    );
+
+    socket.on('error', (err) => {
+      this.logger.error(
+        `Socket error during non-WebSocket upgrade handling: ${err.message}`,
+      );
+    });
+
+    const res = new http.ServerResponse(request);
+    res.assignSocket(socket as unknown as net.Socket);
+
+    res.on('finish', () => {
+      res.detachSocket(socket as unknown as net.Socket);
+      (socket as unknown as net.Socket).destroySoon();
+    });
+
+    return this.handleRequest(request, res);
   }
 
   protected async handleRequest(
@@ -208,9 +243,13 @@ export class HTTPServer extends EventEmitter {
       }
     }
 
-    const body = await readBody(req, this.config.getMaxPayloadSize()).catch(
-      (e) => this.handleErrorRequest(e, res),
-    );
+    let body;
+    try {
+      body = await readBody(req, this.config.getMaxPayloadSize());
+    } catch (e: unknown) {
+      return this.handleErrorRequest(e as Error, res, req);
+    }
+
     req.body = body;
     req.queryParams = queryParamsToObject(req.parsed.searchParams);
 
@@ -318,7 +357,7 @@ export class HTTPServer extends EventEmitter {
       .then(() => {
         this.logger.trace('HTTP connection complete');
       })
-      .catch((e) => this.handleErrorRequest(e, res));
+      .catch((e) => this.handleErrorRequest(e, res, req));
   }
 
   protected async handleWebSocket(
@@ -413,7 +452,7 @@ export class HTTPServer extends EventEmitter {
         .then(() => {
           this.logger.trace('Websocket connection complete');
         })
-        .catch((e) => this.handleErrorRequest(e, socket));
+        .catch((e) => this.handleErrorRequest(e, socket, req));
     }
 
     this.logger.warn(
@@ -438,5 +477,5 @@ export class HTTPServer extends EventEmitter {
   /**
    * Left blank for downstream SDK modules to optionally implement.
    */
-  public stop() {}
+  public stop() { }
 }

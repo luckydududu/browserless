@@ -10,25 +10,27 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_PASSWORD }}
 
       - name: Publish the Stable Base image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
+          build-args: |
+            APT_MIRROR=azure.archive.ubuntu.com
           builder: ${{ steps.buildx.outputs.name }}
           file: ./docker/base/Dockerfile
           tags: |
@@ -40,7 +42,7 @@ jobs:
             linux/arm64
 
       - name: Publish the Stable Chromium image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             VERSION=${{github.ref_name}}
@@ -55,7 +57,7 @@ jobs:
             linux/arm64
 
       - name: Publish the Stable Chrome image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             VERSION=${{github.ref_name}}
@@ -69,7 +71,7 @@ jobs:
             linux/amd64
 
       - name: Publish the Stable Edge image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             VERSION=${{github.ref_name}}
@@ -83,7 +85,7 @@ jobs:
             linux/amd64
 
       - name: Publish the Stable FireFox image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             VERSION=${{github.ref_name}}
@@ -98,10 +100,11 @@ jobs:
             linux/arm64
 
       - name: Publish the Stable Webkit image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             VERSION=${{github.ref_name}}
+            INSTALL_WEBKIT_VERSIONS=false
           builder: ${{ steps.buildx.outputs.name }}
           file: ./docker/webkit/Dockerfile
           tags: |
@@ -112,15 +115,48 @@ jobs:
             linux/amd64
             linux/arm64
 
-      - name: Publish the Stable Multi image
-        uses: docker/build-push-action@v5
+      - name: Publish the Stable Webkit Heavy image
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             VERSION=${{github.ref_name}}
+            INSTALL_WEBKIT_VERSIONS=true
+          builder: ${{ steps.buildx.outputs.name }}
+          file: ./docker/webkit/Dockerfile
+          tags: |
+            ghcr.io/browserless/webkit-heavy:${{github.ref_name}}
+          context: .
+          push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Publish the Stable Multi image
+        uses: docker/build-push-action@v7
+        with:
+          build-args: |
+            VERSION=${{github.ref_name}}
+            INSTALL_WEBKIT_VERSIONS=false
           builder: ${{ steps.buildx.outputs.name }}
           file: ./docker/multi/Dockerfile
           tags: |
             ghcr.io/browserless/multi:${{github.ref_name}}
+          context: .
+          push: true
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Publish the Stable Multi Heavy image
+        uses: docker/build-push-action@v7
+        with:
+          build-args: |
+            VERSION=${{github.ref_name}}
+            INSTALL_WEBKIT_VERSIONS=true
+          builder: ${{ steps.buildx.outputs.name }}
+          file: ./docker/multi/Dockerfile
+          tags: |
+            ghcr.io/browserless/multi-heavy:${{github.ref_name}}
           context: .
           push: true
           platforms: |

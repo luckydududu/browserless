@@ -3,6 +3,7 @@ import {
   BrowserInstance,
   ChromiumCDP,
   Config,
+  ContextValue,
   HTTPRoutes,
   Logger,
   Request,
@@ -29,7 +30,7 @@ declare global {
 
 interface JSONSchema {
   code: string;
-  context?: Record<string, string | number>;
+  context?: { [key: string]: ContextValue };
 }
 
 interface HandlerOptions {

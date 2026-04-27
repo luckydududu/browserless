@@ -1,4 +1,88 @@
-# [Latest](https://github.com/browserless/chrome/compare/v2.42.0...main)
+# [Latest](https://github.com/browserless/browserless/compare/v2.48.0...main)
+
+# [v2.48.0](https://github.com/browserless/browserless/compare/v2.47.0...v2.48.0)
+- Dependency updates.
+- Updates NodeJS to `24.15.0`.
+- Updates NPM to `11.13.0`.
+- CI: route apt through the Azure mirror to avoid `archive.ubuntu.com` timeouts.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.42.0`
+  - playwright-core: `1.59.1`, `1.58.2`, `1.57.0`, `1.56.1`, and `1.55.1`.
+  - Chromium: `147.0.7727.0`
+  - Chrome: `147.0.7727.116` (amd64 only)
+  - Firefox: `148.0.2`
+  - Webkit: `26.0`
+  - Edge: `147.0.3912.86` (amd64 only)
+
+# [v2.47.0](https://github.com/browserless/browserless/compare/v2.46.0...v2.47.0)
+- Dependency updates.
+- Updates NPM to `11.12.1`.
+- Adds support for Playwright 1.59.
+- Fix: include content type in generic error handling.
+- Fix: remove dbus autolaunch to stop orphaned dbus-daemon processes.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.40.0`
+  - playwright-core: `1.59.1`, `1.58.2`, `1.57.0`, `1.56.1`, and `1.55.1`.
+  - Chromium: `145.0.7632.0`
+  - Chrome: `147.0.7727.55` (amd64 only)
+  - Firefox: `146.0.1`
+  - Webkit: `26.0`
+  - Edge: `147.0.3912.60` (amd64 only)
+
+# [v2.46.0](https://github.com/browserless/browserless/compare/v2.45.0...v2.46.0)
+- Dependency updates.
+- Updates NodeJS to `24.14.1`.
+- Fix: replace Record and Parameters utility types with index signatures to fix schema validation.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.40.0`
+  - playwright-core: `1.58.2`, `1.57.0`, `1.56.1`, `1.55.1`, and `1.54.2`.
+  - Chromium: `145.0.7632.0`
+  - Chrome: `146.0.7680.153` (amd64 only)
+  - Firefox: `146.0.1`
+  - Webkit: `26.0`
+  - Edge: `146.0.3856.62` (amd64 only)
+
+# [v2.45.0](https://github.com/browserless/browserless/compare/v2.44.0...v2.45.0)
+- Dependency updates.
+- Fix: include required array in OpenAPI request body schema.
+- Chore: remove unnecessary ts-node dependency.
+- Chore: upgrade GitHub Actions to Node.js 24 compatible versions.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.40.0`
+  - playwright-core: `1.58.2`, `1.57.0`, `1.56.1`, `1.55.1`, and `1.54.2`.
+  - Chromium: `145.0.7632.0`
+  - Chrome: `146.0.7680.153` (amd64 only)
+  - Firefox: `146.0.1`
+  - Webkit: `26.0`
+  - Edge: `146.0.3856.62` (amd64 only)
+
+# [v2.44.0](https://github.com/browserless/browserless/compare/v2.43.0...v2.44.0)
+- Dependency updates.
+- Updates NPM to `11.12.0`.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.39.1`
+  - playwright-core: `1.58.2`, `1.57.0`, `1.56.1`, `1.55.1`, and `1.54.2`.
+  - Chromium: `145.0.7632.0`
+  - Chrome: `146.0.7680.153` (amd64 only)
+  - Firefox: `146.0.1`
+  - Webkit: `26.0`
+  - Edge: `146.0.3856.62` (amd64 only)
+
+# [v2.43.0](https://github.com/browserless/browserless/compare/v2.42.0...v2.43.0)
+- Dependency updates.
+- Updates NPM to `11.11.1`.
+- Fix: allow multiple Playwright binaries for WebKit.
+- Fix: handle h2c upgrade requests as normal HTTP.
+- Fix: preserve external `webSocketDebuggerUrl` for CDP clients in JSON version endpoint.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.39.0`
+  - playwright-core: `1.58.2`, `1.57.0`, `1.56.1`, `1.55.1`, and `1.54.2`.
+  - Chromium: `145.0.7632.0`
+  - Chrome: `146.0.7680.71` (amd64 only)
+  - Firefox: `146.0.1`
+  - Webkit: `26.0`
+  - Edge: `145.0.3800.97` (amd64 only)
+
 
 # [v2.42.0](https://github.com/browserless/browserless/compare/v2.41.0...v2.42.0)
 - Dependency updates.

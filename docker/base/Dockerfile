@@ -6,8 +6,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=America/Los_Angeles
 ARG BLESS_USER_ID=999
 ARG APP_DIR=/usr/src/app
-ARG NODE_VERSION=v24.14.0
-ARG NPM_VERSION=11.10.1
+ARG NODE_VERSION=v24.15.0
+ARG NPM_VERSION=11.13.0
 
 ENV NODE_VERSION=$NODE_VERSION
 ENV NVM_DIR=/usr/src/.nvm
@@ -23,7 +23,6 @@ ENV NODE_ENV=production
 ENV DEBUG_COLORS=true
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PLAYWRIGHT_BROWSERS_PATH=/usr/local/bin/playwright-browsers
-ENV DBUS_SESSION_BUS_ADDRESS=autolaunch:
 
 RUN mkdir -p $APP_DIR $NVM_DIR && \
   groupadd -r blessuser && useradd --uid ${BLESS_USER_ID} -r -g blessuser -G audio,video blessuser && \
@@ -33,6 +32,17 @@ RUN mkdir -p $APP_DIR $NVM_DIR && \
 WORKDIR $APP_DIR
 
 COPY fonts/* /usr/share/fonts/truetype/
+
+# Optional apt mirror override. Unset by default so external builders keep the
+# upstream archive.ubuntu.com + security.ubuntu.com defaults untouched. CI
+# passes azure.archive.ubuntu.com to avoid timeouts from GitHub-hosted
+# (Azure-backed) runners; when set, both archive and security are routed
+# through it since the Azure mirror carries noble-security as well.
+ARG APT_MIRROR=
+RUN if [ -n "${APT_MIRROR}" ]; then \
+    sed -i "s|archive.ubuntu.com|${APT_MIRROR}|g; s|security.ubuntu.com|${APT_MIRROR}|g" \
+      /etc/apt/sources.list.d/ubuntu.sources; \
+  fi
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends software-properties-common \
@@ -50,8 +60,6 @@ RUN apt-get update \
   ssh \
   wget \
   xvfb \
-  dbus \
-  dbus-x11 \
   libwebp-dev \
   python3 python3-pip python3-setuptools \
   # Font packages

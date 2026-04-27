@@ -5,6 +5,7 @@ import {
   BrowserlessRoutes,
   CDPLaunchOptions,
   ChromiumCDP,
+  ContextValue,
   HTTPRoutes,
   Logger,
   Methods,
@@ -27,7 +28,7 @@ import path from 'path';
 
 interface JSONSchema {
   code: string;
-  context?: Record<string, string | number>;
+  context?: { [key: string]: ContextValue };
 }
 
 export type BodySchema = JSONSchema | string;
